@@ -1,6 +1,7 @@
 package main
 import (
 	"net/http"
+	"html/template"
 	"flag"
 	"log"
 	"fmt"
@@ -20,6 +21,10 @@ type Config struct {
 	}
 }
 
+type Scheme struct {
+	Id	int
+	HTML	string
+}
 
 var(
 	assets = flag.String("a","./public_html/.","url startpoint")
@@ -35,7 +40,8 @@ const(
 
 
 func test(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w,"Hello World!!")
+	t := template.Must(template.ParseFiles("template/base.html"))
+	t.Execute(w,Scheme{1,"foofoofoo"}) 
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +74,7 @@ func main() {
 	r.Handle("/",path)
 	r.HandleFunc("/login", LoginHandler)
 	r.HandleFunc("/check", CheckHandler)
+	r.HandleFunc("/test", test)
 	http.Handle("/", r)
 
 	err = http.ListenAndServe(":11111",nil)
