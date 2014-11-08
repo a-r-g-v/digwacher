@@ -8,32 +8,15 @@ import (
 	"github.com/gorilla/mux"
 	"code.google.com/p/gcfg"
 )
-
-
-type Config struct {
-	Admin struct {
-		Id	string
-		Passwd	string
-	}
-	Session struct{
-		Secretkey string
-	}
-}
-
-
 var(
+	Config cfg 
 	assets = flag.String("a","./public_html/.","url startpoint")
-	config  = Config{}
+	CookieStore store
 )
-	
-var store sessions.Store
-
 const(
  	SESSION_NAME = "PHPSESSIONID" // joke
 	CONFIG_NAME = "config.gcfg"
 )
-
-
 func test(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w,"Hello World!!")
 }
@@ -55,22 +38,17 @@ func main() {
 	)
 	flag.Parse()
 	
-	err := gcfg.ReadFileInto(&config, CONFIG_NAME)
-	if err != nil {
-		log.Fatal("ReadFileInto:", err)
-	}
-
-	store = sessions.NewCookieStore([]byte(config.Session.Secretkey))
-	
+	gcfg.ReadFileInto(&cfg, "config.gcfg")
+	log.Fatal(cfg.session.secret);
+	store = sessions.NewCookieStore([]byte("flag_is_here"))
 	path	= http.FileServer(http.Dir(*assets))
-
 	r 	:= mux.NewRouter()
 	r.Handle("/",path)
 	r.HandleFunc("/login", LoginHandler)
 	r.HandleFunc("/check", CheckHandler)
-	http.Handle("/", r)
 
-	err = http.ListenAndServe(":11111",nil)
+	http.Handle("/", r)
+	err := http.ListenAndServe(":11111",nil)
 	if err != nil{
 		log.Fatal("ListenAndSeve: ", err);
 	}

@@ -1,0 +1,9 @@
+/*
+	Please Rename sample.config.gcfg -> config.gcfg
+*/
+[admin]
+id = username
+passwd = userpassword
+
+[session]
+secretkey = flag_is_here
